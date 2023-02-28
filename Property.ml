@@ -54,3 +54,9 @@ Nous avons ensuite combiné cette propriété avec la propriété toujours vraie
 Cela garantit que la propriété combinée est toujours vraie. 
 Nous avons finalement vérifié cette propriété en utilisant la fonction Test.check.
 **)
+
+(* Fonction sum *)
+let rec sum l =
+  match l with
+    []-> 0
+  |h::t-> h + (sum t);;
