@@ -107,4 +107,103 @@ module Generator :
   end =
   struct
     (* TODO : Implémenter le type et tous les éléments de la signature *)
+    
+    type 'a t = {seed : int; gen : (int->'a)}
+    		
+    		
+        let float x y = 
+        	{seed = Random.int 1000; 
+        	gen = (fun s -> Random.init s;
+        		((Random.float (y-.x)) +. x)
+        	)};;
+    
+    	let bool prob =
+    		{seed = Random.int 1000;
+    		gen = (fun s ->
+    			Random.init s;
+    			if (Random.float 1.) < prob
+    			then
+    				false
+    			else
+    				true
+    		)}
+    		;;
+
+    	let int a b = 
+    		{seed = Random.int 1000;
+    		gen = (fun s -> 
+    			Random.init s;
+    			((Random.int (b-a)) + a)
+    		)};;
+    	
+    	let const x = {seed = 0; gen = (fun _ -> x)};;
+    	
+    	let next gen = 
+    		let s = Random.int 1000 in
+    			gen.gen s
+    		;;
+    	
+    	let int_nonneg = int 0;;
+    	
+    	let float_nonneg = float 0.;;
+    	
+    	let char = 
+    		{seed = Random.int 1000; 
+    		gen = fun s -> (
+    			Random.init s;
+    			Char.chr ((Random.int (126-33)) + 33)
+    		)};;
+    	
+    	let alphanum = 
+    		{seed = Random.int 1000; 
+    		gen = fun s -> (
+	    		match ((int 0 62).gen s) with
+	    		| x when x < 10 -> Char.chr ((Random.int (57-48)) + 48)
+	    		| x when x < 36 -> Char.chr ((Random.int (90-65)) + 65)
+	    		| _ -> Char.chr ((Random.int (122-97)) + 97)
+    		)};;
+    	
+    	(*let string n gen = 0;;*)
+    	
+    	let list n gen = 
+    		{seed = Random.int 1000;
+    		gen = fun s -> (
+    			Random.init s;
+    			let l = List.init n (fun x -> gen.gen (x+s)) in l
+    		)};;
+    	
+    	let combine fst_gen snd_gen = 
+    		{seed = Random.int 1000;
+    		gen = fun s -> (fst_gen.gen s, snd_gen.gen s)
+    		};;
+    	
+    	let map f gen = 
+    		{seed = Random.int 1000 ;
+    		gen = fun s -> f (gen.gen s)
+    		};;
+    		
+    	
+    	(* 	/!\
+    	Si aucune valeur ne correspond au filtre, retourner quoi ? 
+    		/!\	*)	
+    	let rec secur_recurs stop next param n = 
+		if (n<0 || stop param)
+		then
+			param
+		else
+			secur_recurs stop next (next param) (n-1)
+		;;
+    		
+    	
+    	let filter p gen = 
+    		{seed = Random.int 1000;
+    		gen = fun s -> (
+    			let x = (gen.gen s) in
+	    			if p x
+	    			then
+    					x
+    				else 
+    					gen.gen (secur_recurs (fun param -> p (gen.gen param)) (fun param -> Random.int 1000) 1000 1000)
+    		)};;
+    
   end ;;
