@@ -163,7 +163,11 @@ module Generator :
 	    		| _ -> Char.chr ((Random.int (122-97)) + 97)
     		)};;
     	
-    	(*let string n gen = 0;;*)
+    	let string n gen =
+  		{ seed = Random.int 1000;
+    		  gen = fun s -> (
+    		  	Random.init s;
+    		  	String.init n (fun x -> gen.gen (x+s)))};;
     	
     	let list n gen = 
     		{seed = Random.int 1000;
