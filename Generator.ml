@@ -209,5 +209,18 @@ module Generator :
     				else 
     					gen.gen (secur_recurs (fun param -> p (gen.gen param)) (fun param -> Random.int 1000) 1000 1000)
     		)};;
+		
+	
+	let partitioned_map p f gen = 
+    		{seed = Random.int 1000;
+    		gen = fun s -> (
+    			Random.init s;
+    			let x = gen.gen s in
+    				if p x
+    				then
+    					(fst f) x
+    				else
+    					(snd f) x
+    		)};;
     
   end ;;
