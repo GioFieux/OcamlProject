@@ -108,83 +108,63 @@ module Generator :
   struct
     (* TODO : Implémenter le type et tous les éléments de la signature *)
     
-    type 'a t = {seed : int; gen : (int->'a)}
+    type 'a t = (int->'a);;
     		
     		
-        let float x y = 
-        	{seed = Random.int 1000; 
-        	gen = (fun s -> Random.init s;
+        let float x y = (fun s -> Random.init s;
         		((Random.float (y-.x)) +. x)
-        	)};;
+        	);;
     
-    	let bool prob =
-    		{seed = Random.int 1000;
-    		gen = (fun s ->
+    	let bool prob = (fun s ->
     			Random.init s;
     			if (Random.float 1.) < prob
     			then
     				false
     			else
     				true
-    		)}
+    		)
     		;;
 
-    	let int a b = 
-    		{seed = Random.int 1000;
-    		gen = (fun s -> 
+    	let int a b = (fun s -> 
     			Random.init s;
     			((Random.int (b-a)) + a)
-    		)};;
+    		);;
     	
-    	let const x = {seed = 0; gen = (fun _ -> x)};;
+    	let const x = (fun _ -> x);;
     	
     	let next gen = 
     		let s = Random.int 1000 in
-    			gen.gen s
+    			gen s
     		;;
     	
     	let int_nonneg = int 0;;
     	
     	let float_nonneg = float 0.;;
     	
-    	let char = 
-    		{seed = Random.int 1000; 
-    		gen = fun s -> (
+    	let char = fun s -> (
     			Random.init s;
     			Char.chr ((Random.int (126-33)) + 33)
-    		)};;
+    		);;
     	
-    	let alphanum = 
-    		{seed = Random.int 1000; 
-    		gen = fun s -> (
-	    		match ((int 0 62).gen s) with
+    	let alphanum = fun s -> (
+	    		match ((int 0 62) s) with
 	    		| x when x < 10 -> Char.chr ((Random.int (57-48)) + 48)
 	    		| x when x < 36 -> Char.chr ((Random.int (90-65)) + 65)
 	    		| _ -> Char.chr ((Random.int (122-97)) + 97)
-    		)};;
+    		);;
     	
-    	let string n gen =
-  		{ seed = Random.int 1000;
-    		  gen = fun s -> (
+    	let string n gen = fun s -> (
     		  	Random.init s;
-    		  	String.init n (fun x -> gen.gen (x+s)))};;
+    		  	String.init n (fun x -> gen (x+s)));;
     	
-    	let list n gen = 
-    		{seed = Random.int 1000;
-    		gen = fun s -> (
+    	let list n gen = fun s -> (
     			Random.init s;
-    			let l = List.init n (fun x -> gen.gen (x+s)) in l
-    		)};;
+    			let l = List.init n (fun x -> gen (x+s)) in l
+    		);;
     	
-    	let combine fst_gen snd_gen = 
-    		{seed = Random.int 1000;
-    		gen = fun s -> (fst_gen.gen s, snd_gen.gen s)
-    		};;
+    	let combine fst_gen snd_gen = fun s -> (fst_gen s, snd_gen s);;
     	
-    	let map f gen = 
-    		{seed = Random.int 1000 ;
-    		gen = fun s -> f (gen.gen s)
-    		};;
+    	let map f gen = fun s -> f (gen s);;
     		
     	
     	(* 	/!\
@@ -199,28 +179,24 @@ module Generator :
 		;;
     		
     	
-    	let filter p gen = 
-    		{seed = Random.int 1000;
-    		gen = fun s -> (
-    			let x = (gen.gen s) in
+    	let filter p gen = fun s -> (
+    			let x = (gen s) in
 	    			if p x
 	    			then
     					x
     				else 
-    					gen.gen (secur_recurs (fun param -> p (gen.gen param)) (fun param -> Random.int 1000) 1000 1000)
-    		)};;
+    					gen (secur_recurs (fun param -> p (gen param)) (fun param -> Random.int 1000) 1000 1000)
+    		);;
 		
 	
-	let partitioned_map p f gen = 
-    		{seed = Random.int 1000;
-    		gen = fun s -> (
+	let partitioned_map p f gen = fun s -> (
     			Random.init s;
-    			let x = gen.gen s in
+    			let x = (gen s) in
     				if p x
     				then
     					(fst f) x
     				else
     					(snd f) x
-    		)};;
+    		);;
     
   end ;;
