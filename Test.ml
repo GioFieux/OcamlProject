@@ -38,4 +38,33 @@ module Test :
   end =
   struct
     (* TODO : Implémenter le type et tous les éléments de la signature *)
+    type 'a t = {
+      name: string;
+      property: 'a Property.t;
+      generator: 'a Generator.t;
+      reduction: 'a Reduction.t;
+    }
+
+    let create name property generator reduction = { name; property; generator; reduction }
+
+    let test ?(count=100) ?(size=100) test =
+      let rec aux n =
+        if n = 0 then Ok () else
+        let param = Generator.generate ~size:size test.generator in
+        match test.property param with
+        | true -> aux (n-1)
+        | false -> (
+          match Reduction.reduce ~count:count ~size:size param test.reduction with
+          | [] -> Error (param, None)
+          | counterexample::_ -> Error (param, Some counterexample)
+      )
+      in aux count
+
+    let tests ?(count=100) ?(size=100) tests =
+      List.fold_left (fun acc test ->
+        match test ?count:count ~size:size with
+       | Ok () -> acc
+       | Error (param, None) -> (test.name, param, None)::acc
+       | Error (param, Some counterexample) -> (test.name, param, Some counterexample)::acc
+      ) [] tests
   end ;;
