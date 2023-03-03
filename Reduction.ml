@@ -1,17 +1,8 @@
 module Reduction :
   sig
-    (** Type d'une stratégie de réduction des éléments de type 'a
-      * Une stratégie associe à chaque valeur une liste de propositions plus "simples".
-      * NB : Les propositions sont ordonnées dans l'ordre croissance de "simplicité"
-      *      (i.e. les valeurs les plus "simples" sont en début de liste).
-      * IMPORTANT : Les stratégies implémentées respectent les conditions des générateurs correspondants.
-      *)
     type 'a t = 'a -> 'a list
 
-    (** La stratégie vide : ne renvoie aucune proposition de réduction *)
     val empty : 'a t
-
-    (* TYPES DE BASE *)
 
     (** Stratégie de réduction sur les entiers
       * @param n entier
@@ -37,54 +28,100 @@ module Reduction :
       *)
     val float_nonneg : float t
 
-    (** Stratégie de réduction sur les caractères
-      * @param c caractère
-      * @return  liste de caractères plus "simples"
-      *)
-    val char : char t
 
-    (** Stratégie de réduction sur les caractères alphanumériques
-      * @param c caractère alphanumérique
-      * @return  liste de caractères alphanumériques plus "simples"
-      *)
-    val alphanum : char t
-
-    (* CHAINES DE CARACTERES *)
-
-    (** Stratégie de réduction sur les chaînes de caractères
-      * @param red stratégie de réduction à utiliser sur chaque caractère
-      * @param s   chaîne de caractères
-      * @return    liste de chaînes de caractères plus "simples" au pire aussi longues que `s`
-      *)
-    val string : char t -> string t
-
-    (* LISTES *)
-
-    (** Stratégie de réduction sur les listes
-      * @param red stratégie de réduction à utiliser sur chaque élément
-      * @param l   liste
-      * @return    liste de listes plus "simples" au pire aussi longues que `l`
-      *)
-    val list : 'a t -> ('a list) t
-
-    (* TRANSFORMATIONS *)
-
-    (** Stratégie de réduction sur les couples
-      * @param fst_red stratégie de réduction de la première coordonnée
-      * @param snd_red stratégie de réduction de la deuxième coordonnée
-      * @return        stratégie de réduction sur les couples correspondants
-      *)
-    val combine : 'a t -> 'b t -> ('a * 'b) t
-
-    (** Applique un filtre à une stratégie de réduction
-      * @param p   filtre à appliquer à chaque réduction
-      * @param red stratégie de réduction
-      * @return    stratégie de réduction ne contenant que des propositions vérifiant `p`
-      *)
-    val filter : ('a -> bool) -> 'a t -> 'a t
   end =
   struct
     type 'a t = 'a -> 'a list ;;
 
-    (* TODO : Implémenter tous les éléments de la signature manquants *)
+
+    (* Implementation de empty *)
+
+    let empty : 'a t = fun _ -> []
+
+
+    (** Version récursive terminale de Reduction.int
+      * @param n entier
+      * @param nb_values entier positif
+      * @param liste_red liste d'entiers
+      * @return liste_red avec nb_values*2 - 1 deux entiers plus simples que n 
+      *)
+
+    let rec int_rec ( n,  nb_values, liste_red ) = 
+        if (n == 0 || nb_values <= 0 ) then 
+            liste_red
+        else 
+            let new_n = (n * (nb_values - 1)) / nb_values in
+                if(new_n ==0 ) then
+                    int_rec ( new_n, nb_values - 1, new_n :: liste_red )
+                else
+                    int_rec ( new_n, nb_values - 1, new_n :: (- new_n) :: liste_red )
+
+
+    (** Implémentation de Reduction.int*)
+
+    let int : int t = fun n -> int_rec(n, 10, [])
+
+
+    (** Version récursive terminale de Reduction.int_nonneg
+      * @param n entier
+      * @param nb_values entier positif
+      * @param liste_red liste d'entiers
+      * @return liste_red avec nb_values*2 - 1 deux entiers plus simples que n 
+      *)
+
+    let rec int_nonneg_rec ( n,  nb_values, liste_red ) = 
+        if (n <= 0 || nb_values <= 0 ) then 
+            liste_red
+        else 
+            let new_n = (n * (nb_values - 1)) / nb_values in
+                int_nonneg_rec ( new_n, nb_values - 1, new_n :: liste_red )
+
+    (** Implémentation de Reduction.int_nonneg*)
+
+    let int_nonneg : int t = fun n -> int_nonneg_rec(n, 10, [])
+
+    (** Version récursive terminale de Reduction.float
+      * @param x flottant
+      * @param min_val flottant
+      * @param nb_values flottant positif
+      * @param liste_red liste de flottants
+      * @return liste_red avec nb_values*2 - 1 deux flottants plus simples que x
+      *)
+
+    let rec float_rec ( x, min_val,  nb_values, liste_red ) = 
+        if (abs_float(x) < abs_float(min_val) || nb_values < 1.0 ) then 
+            liste_red
+        else 
+            let new_x = (x *. (nb_values -. 1.)) /. nb_values in
+                if(new_x == 0. ) then
+                    float_rec ( new_x, min_val, nb_values -. 1., new_x :: liste_red )
+                else
+                    float_rec ( new_x, min_val, nb_values -. 1., new_x :: (-. new_x) :: liste_red )
+
+
+    (** Implémentation de Reduction.float *)
+
+    let float : float t = fun x -> float_rec(x, ((x/.10.)-.0.0001), 10., [])
+
+
+    (** Version récursive terminale de Reduction.float
+      * @param x flottant positif
+      * @param nb_values flottant positif
+      * @param liste_red liste de flottants positif
+      * @return liste_red avec nb_values de flottants positif plus simples que x
+      *)
+
+    let rec float_nonneg_rec ( x, nb_values, liste_red ) = 
+        if (x <= 0. || nb_values < 1.0 ) then 
+            liste_red
+        else 
+            let new_x = (x *. (nb_values -. 1.)) /. nb_values in
+                float_nonneg_rec ( new_x, nb_values -. 1., new_x :: liste_red )
+
+
+
+    (** Implémentation de Reduction.float_nonneg *)
+
+    let float_nonneg : float t = fun x -> float_nonneg_rec(x, 10., [])
+
   end ;;
