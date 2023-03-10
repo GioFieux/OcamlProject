@@ -228,3 +228,8 @@ module Reduction :
         List.filter p (red x);;
 
   end ;;
+
+let red_2_int = Reduction.int(2)
+let red_2_int_nonneg = Reduction.int_nonneg(2)
+let red_2_float = Reduction.float(2.)
+let red_2_float_nonneg = Reduction.float_nonneg(2.)
