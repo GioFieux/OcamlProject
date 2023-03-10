@@ -107,4 +107,112 @@ module Generator :
   end =
   struct
     (* TODO : Implémenter le type et tous les éléments de la signature *)
+    
+    type 'a t = (int->'a);;
+    		
+    		
+        let float x y = (fun s -> Random.init s;
+        		((Random.float (y-.x)) +. x)
+        	);;
+    
+    	let bool prob = (fun s ->
+    			Random.init s;
+    			if (Random.float 1.) < prob
+    			then
+    				false
+    			else
+    				true
+    		)
+    		;;
+
+    	let int a b = (fun s -> 
+    			Random.init s;
+    			((Random.int (b-a)) + a)
+    		);;
+    	
+    	let const x = (fun _ -> x);;
+    	
+    	let next gen = 
+    		let s = Random.int 1000 in
+    			gen s
+    		;;
+    	
+    	let int_nonneg = int 0;;
+    	
+    	let float_nonneg = float 0.;;
+    	
+    	let char = fun s -> (
+    			Random.init s;
+    			Char.chr ((Random.int (126-33)) + 33)
+    		);;
+    	
+    	let alphanum = fun s -> (
+	    		match ((int 0 62) s) with
+	    		| x when x < 10 -> Char.chr ((Random.int (57-48)) + 48)
+	    		| x when x < 36 -> Char.chr ((Random.int (90-65)) + 65)
+	    		| _ -> Char.chr ((Random.int (122-97)) + 97)
+    		);;
+    	
+    	let string n gen = fun s -> (
+    		  	Random.init s;
+    		  	String.init n (fun x -> gen (x+s)));;
+    	
+    	let list n gen = fun s -> (
+    			Random.init s;
+    			let l = List.init n (fun x -> gen (x+s)) in l
+    		);;
+    	
+    	let combine fst_gen snd_gen = fun s -> (fst_gen s, snd_gen s);;
+    	
+    	let map f gen = fun s -> f (gen s);;
+    		
+    	
+    	(* 	/!\
+    	Si aucune valeur ne correspond au filtre, retourner quoi ? 
+    		/!\	*)	
+    	let rec secur_recurs stop next param n = 
+		if (n<0 || stop param)
+		then
+			param
+		else
+			secur_recurs stop next (next param) (n-1)
+		;;
+    		
+    	
+    	let filter p gen = fun s -> (
+    			let x = (gen s) in
+	    			if p x
+	    			then
+    					x
+    				else 
+    					gen (secur_recurs (fun param -> p (gen param)) (fun param -> Random.int 1000) 1000 1000)
+    		);;
+		
+	
+	let partitioned_map p f gen = fun s -> (
+    			Random.init s;
+    			let x = (gen s) in
+    				if p x
+    				then
+    					(fst f) x
+    				else
+    					(snd f) x
+    		);;
+    
   end ;;
+
+(** Exemples d'utilisation**)
+let int = Generator.int 1 30;;
+Generator.next int;;
+
+let intnonneg = Generator.int_nonneg 50;;
+Generator.next intnonneg;;
+
+let string = Generator.string 8 Generator.char;;
+Generator.next int
+
+let char = Generator.char;;
+Generator.next char;;
+
+let list = Generator.list 8 Generator.char;;
+Generator.next list;;
