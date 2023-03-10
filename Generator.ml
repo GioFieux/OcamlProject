@@ -200,3 +200,19 @@ module Generator :
     		);;
     
   end ;;
+
+(** Exemples d'utilisation**)
+let int = Generator.int 1 30;;
+Generator.next int;;
+
+let intnonneg = Generator.int_nonneg 50;;
+Generator.next intnonneg;;
+
+let string = Generator.string 8 Generator.char;;
+Generator.next int
+
+let char = Generator.char;;
+Generator.next char;;
+
+let list = Generator.list 8 Generator.char;;
+Generator.next list;;
