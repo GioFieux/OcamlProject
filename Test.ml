@@ -66,6 +66,7 @@ module Test :
       List.map (fun test -> (test, fails_at n test)) tests
   end ;;
   
+(* Exemple 1: Vérifier si une propriété est toujours vraie *) 
   
 let test1 =
   let prop = Property.always_true in
@@ -76,6 +77,8 @@ let test1 =
 let result1 = Test.check 100 test1
 (* result1 doit être true *)
 
+(* Exemple 2: Vérifier si une propriété est toujours fausse *)
+
 let test2 =
   let prop = Property.always_false in
   let gen = Generator.int_nonneg 100 in
@@ -85,6 +88,8 @@ let test2 =
 let result2 = Test.check 100 test2
 (* result2 doit être true *)
 
+(* Exemple 3: Trouver une valeur qui ne satisfait pas une propriété donnée *)
+
 let test3 =
   let prop x = x mod 2 = 0 in
   let gen = Generator.int 1 100 in
@@ -93,6 +98,9 @@ let test3 =
 
 let result3 = Test.fails_at 100 test3
 (* result3 doit être égal à Some (le premier entier impair généré par gen) *)
+
+
+(* Exemple 4: Combiner plusieurs tests et exécuter en parallèle *)
 
 let prop1 x = x > 0
 let test1 = Test.make_test (Generator.int 1 100) Reduction.no_reduction prop1
@@ -105,4 +113,3 @@ let test3 = Test.make_test (Generator.int 1 100) Reduction.no_reduction prop3
 
 let result4 = Test.execute 100 [test1; test2; test3]
 (* result4 est une liste de paires (test, result) pour chaque test effectué *)
-
