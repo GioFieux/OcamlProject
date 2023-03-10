@@ -28,6 +28,51 @@ module Reduction :
       *)
     val float_nonneg : float t
 
+    (** Stratégie de réduction sur les caractères
+      * @param c caractère
+      * @return  liste de caractères plus "simples"
+      *)
+    val char : char t
+
+    (** Stratégie de réduction sur les caractères alphanumériques
+      * @param c caractère alphanumérique
+      * @return  liste de caractères alphanumériques plus "simples"
+      *)
+    val alphanum : char t
+
+    (* CHAINES DE CARACTERES *)
+
+    (** Stratégie de réduction sur les chaînes de caractères
+      * @param red stratégie de réduction à utiliser sur chaque caractère
+      * @param s   chaîne de caractères
+      * @return    liste de chaînes de caractères plus "simples" au pire aussi longues que `s`
+      *)
+    val string : char t -> string t
+
+    (* LISTES *)
+
+    (** Stratégie de réduction sur les listes
+      * @param red stratégie de réduction à utiliser sur chaque élément
+      * @param l   liste
+      * @return    liste de listes plus "simples" au pire aussi longues que `l`
+      *)
+    val list : 'a t -> ('a list) t
+
+    (* TRANSFORMATIONS *)
+
+    (** Stratégie de réduction sur les couples
+      * @param fst_red stratégie de réduction de la première coordonnée
+      * @param snd_red stratégie de réduction de la deuxième coordonnée
+      * @return        stratégie de réduction sur les couples correspondants
+      *)
+    val combine : 'a t -> 'b t -> ('a * 'b) t
+
+    (** Applique un filtre à une stratégie de réduction
+      * @param p   filtre à appliquer à chaque réduction
+      * @param red stratégie de réduction
+      * @return    stratégie de réduction ne contenant que des propositions vérifiant `p`
+      *)
+    val filter : ('a -> bool) -> 'a t -> 'a t
 
   end =
   struct
@@ -123,5 +168,63 @@ module Reduction :
     (** Implémentation de Reduction.float_nonneg *)
 
     let float_nonneg : float t = fun x -> float_nonneg_rec(x, 10., [])
+
+
+
+    let char c =
+        match c with
+            | _ -> [c];;
+
+
+    let alphanum c =
+        match c with
+            _ -> [c];;
+  
+  
+    let alphanum_lower c =
+        match c with
+            | 'A' .. 'Z' -> [Char.chr (Char.code c + 32)]
+            | _ -> [c];;
+
+    let rec string (red: char -> char list) (s: string) =
+        match s with
+            | "" -> []
+            | _ ->
+        let n = String.length s in
+        let rec helper i =
+            if i >= n then []
+            else
+                let char_reductions = red s.[i] in
+                let substrings = List.map (fun c -> String.make 1 c) char_reductions in
+                    let rest_substrings = helper (i + 1) in
+                        List.concat (List.map (fun s -> List.map (fun rest -> s ^ rest) rest_substrings) substrings)
+                            in
+                                helper 0;;
+          
+
+      
+
+    let list (red: 'a -> 'a list) (s: 'a list) =
+        let rec helper s =
+            match s with
+                | [] -> [[]]
+                | c::s' ->
+                    let char_reductions = red c in
+                        let substrings = List.map (fun c' -> [c']) char_reductions in
+                            let rest_substrings = helper s' in
+                                List.concat (List.map (fun s -> List.map (fun rest -> s @ rest) rest_substrings) substrings)
+                                    in
+                                        helper s;;
+      
+  
+
+    let combine red1 red2 (x, y) =
+        let l1 = red1 x in
+            let l2 = red2 y in
+                List.map (fun x -> (x, y)) l1 @ List.map (fun y -> (x, y)) l2;;
+
+
+    let filter p red x =
+        List.filter p (red x);;
 
   end ;;
