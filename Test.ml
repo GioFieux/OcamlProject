@@ -37,34 +37,31 @@ module Test :
     val execute : int -> ('a t) list -> ('a t * 'a option) list
   end =
   struct
-    (* TODO : Implémenter le type et tous les éléments de la signature *)
-    type 'a t = {
-      name: string;
-      property: 'a Property.t;
-      generator: 'a Generator.t;
-      reduction: 'a Reduction.t;
-    }
+    type 'a t = 'a Generator.t * 'a Reduction.t * 'a Property.t
+    let make_test gen red prop = (gen, red, prop)
 
-    let create name property generator reduction = { name; property; generator; reduction }
+    let check n (gen, red, prop) =
+      let rec loop i =
+        if i >= n then true
+        else
+          let input = Generator.next gen in
+          let simplified_input = Reduction.simplify red input prop in
+          if not (Property.combine prop simplified_input) then false
+          else loop (i + 1)
+      in
+      if n > 0 then loop 0 else true
 
-    let test ?(count=100) ?(size=100) test =
-      let rec aux n =
-        if n = 0 then Ok () else
-        let param = Generator.generate ~size:size test.generator in
-        match test.property param with
-        | true -> aux (n-1)
-        | false -> (
-          match Reduction.reduce ~count:count ~size:size param test.reduction with
-          | [] -> Error (param, None)
-          | counterexample::_ -> Error (param, Some counterexample)
-      )
-      in aux count
+    let fails_at n (gen, red, prop) =
+      let rec loop i =
+        if i >= n then None
+        else
+          let input = Generator.next gen in
+          let simplified_input = Reduction.simplify red input prop in
+          if not (Property.combine prop simplified_input) then Some simplified_input
+          else loop (i + 1)
+      in
+      if n > 0 then loop 0 else None
 
-    let tests ?(count=100) ?(size=100) tests =
-      List.fold_left (fun acc test ->
-        match test ?count:count ~size:size with
-       | Ok () -> acc
-       | Error (param, None) -> (test.name, param, None)::acc
-       | Error (param, Some counterexample) -> (test.name, param, Some counterexample)::acc
-      ) [] tests
+    let execute n tests =
+      List.map (fun test -> (test, fails_at n test)) tests
   end ;;
