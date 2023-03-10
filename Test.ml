@@ -1,4 +1,4 @@
-#use  "Property.ml" ;;
+#use "Property.ml" ;;
 #use "Generator.ml" ;;
 #use "Reduction.ml" ;;
 
