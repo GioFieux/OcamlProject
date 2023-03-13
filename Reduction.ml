@@ -107,9 +107,6 @@ module Reduction :
   struct
     type 'a t = 'a -> 'a list ;;
 
- type 'a t = 'a -> 'a list ;;
-
-
     (* Implementation de empty *)
 
     let empty : 'a t = fun _ -> []
