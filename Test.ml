@@ -37,79 +37,48 @@ module Test :
     val execute : int -> ('a t) list -> ('a t * 'a option) list
   end =
   struct
-    type 'a t = 'a Generator.t * 'a Reduction.t * 'a Property.t
-    let make_test gen red prop = (gen, red, prop)
+    type 'a t = {
+      gen: 'a Generator.t;
+      red: 'a Reduction.t;
+      prop: 'a Property.t;
+    }
+    
+    (* Crée un nouveau test avec le générateur, la stratégie de réduction et la propriété donnés *)
+    let make_test gen red prop = {
+      gen = gen;
+      red = red;
+      prop = prop;
+    }
 
-    let check n (gen, red, prop) =
-      let rec loop i =
-        if i >= n then true
+    (* Teste récursivement si les 'n' éléments générés par 'gen' vérifient la propriété 'prop' *)
+    let rec test_iter prop gen n =
+      if n = 0 then
+        true
+      else
+        let x = Generator.next gen in
+        prop x && test_iter prop gen (n - 1)
+
+    (* Vérifie si les 'n' éléments générés pour un test donné vérifient la propriété *)
+    let check n test =
+      test_iter test.prop test.gen n
+
+    (* Trouve récursivement la première valeur générée par 'gen' qui ne vérifie pas la propriété 'prop' *)
+    let rec find_fail prop gen red n =
+      if n = 0 then
+        None
+      else
+        let x = Generator.next gen in
+        if not (prop x) then
+          Some (List.hd (red x))
         else
-          let input = Generator.next gen in
-          let simplified_input = Reduction.simplify red input prop in
-          if not (Property.combine prop simplified_input) then false
-          else loop (i + 1)
-      in
-      if n > 0 then loop 0 else true
+          find_fail prop gen red (n - 1)
 
-    let fails_at n (gen, red, prop) =
-      let rec loop i =
-        if i >= n then None
-        else
-          let input = Generator.next gen in
-          let simplified_input = Reduction.simplify red input prop in
-          if not (Property.combine prop simplified_input) then Some simplified_input
-          else loop (i + 1)
-      in
-      if n > 0 then loop 0 else None
+    (* Trouve la première valeur qui ne vérifie pas la propriété pour un test donné *)
+    let fails_at n test =
+      find_fail test.prop test.gen test.red n
 
+    (* Exécute une liste de tests et renvoie les résultats sous forme de liste de paires (test, valeur échouée) *)
     let execute n tests =
       List.map (fun test -> (test, fails_at n test)) tests
+
   end ;;
-  
-(* Exemple 1: Vérifier si une propriété est toujours vraie *) 
-  
-let test1 =
-  let prop = Property.always_true in
-  let gen = Generator.int_nonneg 100 in
-  let red = Reduction.no_reduction in
-  Test.make_test gen red prop
-
-let result1 = Test.check 100 test1
-(* result1 doit être true *)
-
-(* Exemple 2: Vérifier si une propriété est toujours fausse *)
-
-let test2 =
-  let prop = Property.always_false in
-  let gen = Generator.int_nonneg 100 in
-  let red = Reduction.no_reduction in
-  Test.make_test gen red prop
-
-let result2 = Test.check 100 test2
-(* result2 doit être true *)
-
-(* Exemple 3: Trouver une valeur qui ne satisfait pas une propriété donnée *)
-
-let test3 =
-  let prop x = x mod 2 = 0 in
-  let gen = Generator.int 1 100 in
-  let red = Reduction.no_reduction in
-  Test.make_test gen red prop
-
-let result3 = Test.fails_at 100 test3
-(* result3 doit être égal à Some (le premier entier impair généré par gen) *)
-
-
-(* Exemple 4: Combiner plusieurs tests et exécuter en parallèle *)
-
-let prop1 x = x > 0
-let test1 = Test.make_test (Generator.int 1 100) Reduction.no_reduction prop1
-
-let prop2 x = x mod 2 = 0
-let test2 = Test.make_test (Generator.int 1 100) Reduction.no_reduction prop2
-
-let prop3 x = x mod 3 = 0
-let test3 = Test.make_test (Generator.int 1 100) Reduction.no_reduction prop3
-
-let result4 = Test.execute 100 [test1; test2; test3]
-(* result4 est une liste de paires (test, result) pour chaque test effectué *)
