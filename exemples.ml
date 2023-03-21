@@ -32,7 +32,9 @@ let red_intcouple =
 let test_intcouple = Test.make_test gen_intcouple red_intcouple ;;
 
 (* Construction des tests *)
+(*let test_quorem       = test_intcouple "/ et mod (correct)" (fun (a, b) -> (a = (a / b) * b + (a mod b))) ;;*)
 let test_quorem       = test_intcouple  (fun (a, b) -> (a = (a / b) * b + (a mod b))) ;;
+(*let test_quorem_wrong = test_intcouple "/ et mod (faux)"   (fun (a, b) -> (a = (a / b) * b - (a mod b))) ;;*)
 let test_quorem_wrong = test_intcouple    (fun (a, b) -> (a = (a / b) * b - (a mod b))) ;;
 
 (* Exécution des tests *)
@@ -53,7 +55,9 @@ let red_intlistcouple =
 let test_intlistcouple = Test.make_test gen_intlistcouple red_intlistcouple ;;
 
 (* Constructon des tests *)
-let test_append       = test_intlistcouple (fun (l1, l2) -> List.length (l1 @ l2) = (List.length l1) + (List.length l2)) ;;
+(*let test_append = test_intlistcouple "List.@ (correct)"  (fun (l1, l2) -> List.length (l1 @ l2) = (List.length l1) + (List.length l2)) ;;*)
+let test_append = test_intlistcouple (fun (l1, l2) -> List.length (l1 @ l2) = (List.length l1) + (List.length l2)) ;;
+(*let test_append_wrong = test_intlistcouple "List.@ (faux)" (fun (l1, l2) -> List.length (l1 @ l2) = (List.length l1) - (List.length l2)) ;;*)
 let test_append_wrong = test_intlistcouple (fun (l1, l2) -> List.length (l1 @ l2) = (List.length l1) - (List.length l2)) ;;
 
 (* Exécution des tests *)
