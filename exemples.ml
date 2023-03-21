@@ -32,8 +32,8 @@ let red_intcouple =
 let test_intcouple = Test.make_test gen_intcouple red_intcouple ;;
 
 (* Construction des tests *)
-(*let test_quorem       = test_intcouple "/ et mod (correct)" (fun (a, b) -> (a = (a / b) * b + (a mod b))) ;;*)
-let test_quorem       = test_intcouple  (fun (a, b) -> (a = (a / b) * b + (a mod b))) ;;
+(*let test_quorem = test_intcouple "/ et mod (correct)" (fun (a, b) -> (a = (a / b) * b + (a mod b))) ;;*)
+let test_quorem = test_intcouple  (fun (a, b) -> (a = (a / b) * b + (a mod b))) ;;
 (*let test_quorem_wrong = test_intcouple "/ et mod (faux)"   (fun (a, b) -> (a = (a / b) * b - (a mod b))) ;;*)
 let test_quorem_wrong = test_intcouple    (fun (a, b) -> (a = (a / b) * b - (a mod b))) ;;
 
