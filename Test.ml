@@ -1,4 +1,4 @@
-#use  "Property.ml" ;;
+#use "Property.ml" ;;
 #use "Generator.ml" ;;
 #use "Reduction.ml" ;;
 
@@ -37,5 +37,49 @@ module Test :
     val execute : int -> ('a t) list -> ('a t * 'a option) list
   end =
   struct
-    (* TODO : Implémenter le type et tous les éléments de la signature *)
+    type 'a t = {
+      gen: 'a Generator.t;
+      red: 'a Reduction.t;
+      prop: 'a Property.t;
+    }
+    
+    (* Crée un nouveau test avec le générateur, la stratégie de réduction et la propriété donnés *)
+    let make_test gen red prop = {
+      gen = gen;
+      red = red;
+      prop = prop;
+    }
+
+    (* Teste récursivement si les 'n' éléments générés par 'gen' vérifient la propriété 'prop' *)
+    let rec test_iter prop gen n =
+      if n = 0 then
+        true
+      else
+        let x = Generator.next gen in
+        prop x && test_iter prop gen (n - 1)
+
+    (* Vérifie si les 'n' éléments générés pour un test donné vérifient la propriété *)
+    let check n test =
+      test_iter test.prop test.gen n
+
+    (* Trouve récursivement la première valeur générée par 'gen' qui ne vérifie pas la propriété 'prop' *)
+    let rec find_fail prop gen red n =
+      if n = 0 then
+        None
+      else
+        let x = Generator.next gen in
+        if not (prop x) then
+          Some (x)
+        else
+          find_fail prop gen red (n - 1);;
+
+    (* Trouve la première valeur qui ne vérifie pas la propriété pour un test donné *)
+    let fails_at n test =
+      find_fail test.prop test.gen test.red n
+
+    (* Exécute une liste de tests et renvoie les résultats sous forme de liste de paires (test, valeur échouée) *)
+    let execute n tests =
+      List.map (fun test -> (test, fails_at n test)) tests
+
   end ;;
+
