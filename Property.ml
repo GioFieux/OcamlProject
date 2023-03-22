@@ -16,7 +16,7 @@ module Property :
     type 'a t = 'a -> bool ;;
 
     (* TODO : Implémenter tous les éléments de la signature manquants *)
-(* always_true renvoie toujours true quelle que soit l'entrée *) 
+    (* always_true renvoie toujours true quelle que soit l'entrée *) 
     let always_true : 'a t = fun _ -> true
     
     (* always_false renvoie toujours false quelle que soit l'entrée. *)
