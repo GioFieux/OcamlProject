@@ -104,6 +104,27 @@ module Generator :
       *                                                          et `snd f` pour toute valeur ne le vérifiant pas
       *)
     val partitioned_map : ('a -> bool) -> (('a -> 'b) * ('a -> 'b)) -> 'a t -> 'b t
+    
+    
+    
+    (* Fonctionnalités supplémentaires *)
+    
+    (** Génère une chaîne de caractères avec une taille aléatoire
+      * @param (n,m)	tuple contenant la plage de tailles autorisées, minimum n et maximum m
+      * @param gen	générateur pseudo-aléatoire de caractères
+      * @return	générateur pseudo-aléatoire de chaînes de caractères ayant une taille aléatoire comprise entre `n` et `m`
+      *)
+    val string_randsize : (int * int) -> char t -> string t
+    
+    (** Renvoie une valeur aléeatoire basée sur la seed passée en argument
+      * @param gen générateur pseudo-aléatoire
+      * @param seed	seed utilisée pour générer une valeur
+      * @return    la valeur aléatoire en utilisant `gen` correspondant à la `seed`
+      *)
+    val next_seed : 'a t -> int -> 'a
+    
+    
+    
   end =
   struct
     (* TODO : Implémenter le type et tous les éléments de la signature *)
@@ -197,21 +218,30 @@ module Generator :
     				else
     					(snd f) x
     		);;
+    		
+    	let string_randsize (n,m) gen =
+    		fun s -> (
+    		  	Random.init s;
+    		  	String.init ((Random.int (m-n))+n) (fun x -> gen (x+s)));;
+    
+    	let next_seed gen seed = 
+    			gen seed
+    		;;
     
   end ;;
 
 (** Exemples d'utilisation**)
-let int = Generator.int 1 30;;
-Generator.next int;;
+let gen_int = Generator.int 1 30;;
+Generator.next gen_int;;
 
-let intnonneg = Generator.int_nonneg 50;;
-Generator.next intnonneg;;
+let gen_intnonneg = Generator.int_nonneg 50;;
+Generator.next gen_intnonneg;;
 
-let string = Generator.string 8 Generator.char;;
-Generator.next int
+let gen_string = Generator.string 8 Generator.char;;
+Generator.next gen_string;;
 
-let char = Generator.char;;
-Generator.next char;;
+let gen_char = Generator.char;;
+Generator.next gen_char;;
 
-let list = Generator.list 8 Generator.char;;
-Generator.next list;;
+let gen_list = Generator.list 8 Generator.char;;
+Generator.next gen_list;;
