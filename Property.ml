@@ -26,3 +26,4 @@ module Property :
     let combine (p1 : 'a t) (p2 : 'a t) : 'a t = fun x -> p1 x && p2 x
    
   end;;
+  
