@@ -1,15 +1,15 @@
 #use "Test.ml" ;;
 (* Test Supplémentaire*)
-(*let abs_property x = x >= 0;;
-let abs_property_bis x = x<0;;
+(*let abs_property x = x >= 0.;;
+let abs_property_bis x = x<0.;;
 let abs_test = Test.make_test
-    (Generator.int (-20) 20)
-    (Reduction.int)
+    (Generator.float (-20.) 20.)
+    (Reduction.float)
     (abs_property);;
 
 let abs_test_bis = Test.make_test
-    (Generator.int (-20) 20)
-    (Reduction.int)
+    (Generator.float (-20.) 20.)
+    (Reduction.float)
     (abs_property_bis);;
 
 let result = Test.check 1000 abs_test;;
