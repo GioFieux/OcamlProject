@@ -1,3 +1,5 @@
+#use "Test.ml" ;;
+
 (*Test de la fonctionnalité supplémentaire combine du module Property*)
 (* Définir les propriétés *)
 
