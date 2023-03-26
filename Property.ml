@@ -11,6 +11,9 @@ module Property :
 
     (** Propriété jamais   vérifiée *)
     val always_false : 'a t
+    
+    (* Fonctionnalité supplémentaire *)
+    val combine : 'a t -> 'a t -> 'a t
   end =
   struct
     type 'a t = 'a -> bool ;;
