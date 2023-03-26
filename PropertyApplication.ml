@@ -10,9 +10,9 @@ let combined_prop = Property.combine positive_sum_prop even_sum_prop
 (* Créer un générateur de paires d'entiers *)
 let int_gen = Generator.int (-100) 100
 let pair_gen = Generator.combine int_gen int_gen
-(* Définir une stratégie de réduction 
+(* Définir une stratégie de réduction *)
 let int_red = Reduction.int
-let pair_red = Reduction.combine int_red int_red *)
+let pair_red = Reduction.combine int_red int_red
 (* Créer un test *)
 let test = Test.make_test pair_gen pair_red combined_prop
 (* Effectuer le test *)
