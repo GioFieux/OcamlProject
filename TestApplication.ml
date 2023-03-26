@@ -1,3 +1,5 @@
+#use "Test.ml" ;;
+
 (* Test Supplémentaire*)
 
 let abs_property x = x >= 0.;;
