@@ -37,12 +37,12 @@ module Test :
     val execute : int -> ('a t) list -> ('a t * 'a option) list
     
     (* Fonctionnalité supplémentaire *)
-    (** Génère un rapport détaillé des tests effectués
+    (** Génère un rapport des tests effectués
       * @param n     nombre de valeurs testées par test
       * @param tests liste des tests à vérifier
-      * @return      un rapport détaillé des tests réussis et échoués ainsi que des statistiques
+      * @return      rapport formaté des résultats
       *)
-      
+    val report : int -> ('a t) list -> string
   end =
   struct
     type 'a t = {
@@ -90,6 +90,17 @@ module Test :
       List.map (fun test -> (test, fails_at n test)) tests
      
     (* Fonctionnalité supplémentaire *)
-    (* Génère un rapport détaillé des tests effectués *)
+    (* Génère un rapport des tests effectués *)
+    let report n tests =
+      let results = execute n tests in
+      let report_lines = List.mapi (fun i (test, fail_opt) ->
+        let test_result = match fail_opt with
+          | None -> "Test passed"
+          | Some fail_val -> "Test failed at: " ^ (string_of_int fail_val)
+        in
+        Printf.sprintf "Test %d: %s" (i + 1) test_result
+      ) results
+      in
+      String.concat "\n" report_lines
 
   end ;;
