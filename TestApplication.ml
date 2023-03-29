@@ -2,25 +2,18 @@
 
 (*Test de la fonctionnalité supplémentaire combine du module Test*)
 
-(* Propriété 1 : Vérifie si un nombre est pair *)
-let is_even x = x mod 2 = 0;;
-
-(* Propriété 2 : Vérifie si un nombre est impair *)
-let is_odd x = x mod 2 <> 0;;
-
-(* Générateur de nombres entiers entre -100 et 100 *)
-let int_gen = Generator.int (-100) 100;;
-
-(* Réduction pour les nombres entiers *)
-let int_red = Reduction.int;;
-
-(* Création des tests *)
-let test_even = Test.make_test int_gen int_red (Property.from_predicate is_even);;
-let test_odd = Test.make_test int_gen int_red (Property.from_predicate is_odd);;
-
-(* Exécution des tests *)
-let test_results = Test.execute 1000 [test_even; test_odd];;
-
-(* Génération du rapport *)
-let report = generate_test_report test_results;;
+let abs_property x = x >= 0.;;
+let abs_property_bis x = x<0.;;
+let abs_test = Test.make_test
+    (Generator.float (-20.) 20.)
+    (Reduction.float)
+    (abs_property);;
+let abs_test_bis = Test.make_test
+    (Generator.float (-20.) 20.)
+    (Reduction.float)
+    (abs_property_bis);;
+let result = Test.check 1000 abs_test;;
+let fail= Test.fails_at 1000 abs_test;;
+let execute = Test.execute 1000 [abs_test; abs_test_bis];;
+let report = Test.report execute;;
 print_endline report;;
