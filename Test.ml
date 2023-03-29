@@ -42,7 +42,7 @@ module Test :
       * @param tests liste des tests à vérifier
       * @return      un rapport détaillé des tests réussis et échoués ainsi que des statistiques
       *)
-    val generate_report : int -> ('a t) list -> string
+      
   end =
   struct
     type 'a t = {
@@ -91,22 +91,5 @@ module Test :
      
     (* Fonctionnalité supplémentaire *)
     (* Génère un rapport détaillé des tests effectués *)
-    let generate_report n tests =
-      let results = execute n tests in
-      let total_tests = List.length tests in
-      let failed_tests = List.filter (fun (_, fail) -> fail <> None) results in
-      let failed_count = List.length failed_tests in
-      let success_count = total_tests - failed_count in
-      
-      let report_header = "Test Report\n" ^ String.make 40 '-' ^ "\n" in
-      let report_success = Printf.sprintf "Tests réussis: %d\n" success_count in
-      let report_failed = Printf.sprintf "Tests échoués: %d\n" failed_count in
-      let report_stats = Printf.sprintf "Total des tests: %d\n" total_tests in
-      
-      let report_failed_details = 
-        failed_tests
-        |> List.mapi (fun i (test, fail) -> Printf.sprintf "%d. Test échoué:\nPropriété: %s\nValeur: %s\n\n" (i + 1) (Property.to_string test.prop) (match fail with Some v -> Reduction.to_string test.red v | None -> "N/A"))
-        |> String.concat "" in
-      
-      report_header ^ report_success ^ report_failed ^ report_stats ^ "\nDétails des tests échoués:\n" ^ report_failed_details
+
   end ;;
