@@ -15,5 +15,3 @@ let abs_test_bis = Test.make_test
 let result = Test.check 1000 abs_test;;
 let fail= Test.fails_at 1000 abs_test;;
 let execute = Test.execute 1000 [abs_test; abs_test_bis];;
-let test_report = Test.report 1000 [abs_test; abs_test_bis];;
-print_endline test_report;;
