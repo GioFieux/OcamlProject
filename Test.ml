@@ -36,6 +36,7 @@ module Test :
       *)
     val execute : int -> ('a t) list -> ('a t * 'a option) list
     
+    (* Fonctionnalité supplémentaire *)
     (** Génère un rapport détaillé des tests effectués
       * @param n     nombre de valeurs testées par test
       * @param tests liste des tests à vérifier
@@ -87,7 +88,8 @@ module Test :
     (* Exécute une liste de tests et renvoie les résultats sous forme de liste de paires (test, valeur échouée) *)
     let execute n tests =
       List.map (fun test -> (test, fails_at n test)) tests
-      
+     
+    (* Fonctionnalité supplémentaire *)
     (* Génère un rapport détaillé des tests effectués *)
     let generate_report n tests =
       let results = execute n tests in
