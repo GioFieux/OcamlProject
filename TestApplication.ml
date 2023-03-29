@@ -1,6 +1,6 @@
 #use "Test.ml" ;;
 
-(* Test Supplémentaire*)
+(*Test de la fonctionnalité supplémentaire combine du module Test*)
 
 let abs_property x = x >= 0.;;
 let abs_property_bis x = x<0.;;
