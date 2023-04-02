@@ -182,7 +182,7 @@ module Generator :
     			let l = List.init n (fun x -> gen (x+s)) in l
     		);;
     	
-    	let combine fst_gen snd_gen = fun s -> (fst_gen s, snd_gen s);;
+    	let combine fst_gen snd_gen = fun s -> (fst_gen (s+1), snd_gen s);;
     	
     	let map f gen = fun s -> f (gen s);;
     		
